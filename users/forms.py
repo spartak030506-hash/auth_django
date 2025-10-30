@@ -42,19 +42,17 @@ class CustomUserCreationForm(UserCreationForm):
         widget=forms.CheckboxInput(attrs={'class': 'checkbox-input-register'})
     )
 
-
     class Meta:
         model = User
-        fields = ['first_name', 'last_name', 'email', 'password1', 'password2',
-                  'marketing_consent1', 'marketing_consent2' ]
-    
+        fields = ('first_name', 'last_name', 'email', 'password1', 'password2',
+                  'marketing_consent1', 'marketing_consent2')
 
     def clean_email(self):
         email = self.cleaned_data.get('email')
         if User.objects.filter(email=email).exists():
-            raise forms.ValidationError('Этот email уже используется')
+            raise forms.ValidationError('This email is already in use.')
         return email
-    
+
     def save(self, commit=True):
         user = super().save(commit=False)
         user.username = None
@@ -63,8 +61,7 @@ class CustomUserCreationForm(UserCreationForm):
         if commit:
             user.save()
         return user
-
-
+    
 
 class CustomUserLoginForm(AuthenticationForm):
     username = forms.CharField(
@@ -83,11 +80,11 @@ class CustomUserLoginForm(AuthenticationForm):
         if email and password:
             self.user_cache = authenticate(self.request, username=email, password=password)  # Используйте username вместо email
             if self.user_cache is None:
-                raise forms.ValidationError('Неправильный логин или пароль.')
+                raise forms.ValidationError('Invalid email or password.')
             elif not self.user_cache.is_active:
                 raise forms.ValidationError('This account is inactive.')
         return self.cleaned_data
-
+    
 
 class CustomUserUpdateForm(forms.ModelForm):
     phone = forms.CharField(
